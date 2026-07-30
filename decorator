@@ -1,0 +1,21 @@
+def call_counter(func):
+    count = 0
+
+    def wrapper(*args, **kwargs):
+        nonlocal count
+        count += 1
+        print(f"{func.__name__} has been called {count} time(s).")
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+@call_counter
+def greet(name):
+    print(f"Hello, {name}!")
+
+
+# Function calls
+greet("Alice")
+greet("Bob")
+greet("Charlie")
