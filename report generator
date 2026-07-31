@@ -1,0 +1,99 @@
+# ============================
+# STUDY PLANNER
+# Name: Saniya
+# Concepts: Decorators | Classmethod | Magic Methods
+# ============================
+
+# -------- DECORATOR --------
+def decorate(func):
+    def wrapper(*args, **kwargs):
+        return "**********\n" + func(*args, **kwargs) + "\n**********"
+    return wrapper
+
+
+# -------- CLASS --------
+class StudyPlanner:
+
+    templates = {}
+
+    def __init__(self, plan_name, student="Saniya"):
+        self.plan_name = plan_name
+        self.student = student
+        self.subjects = []
+
+    @classmethod
+    def add_template(cls, name, section_list):
+        cls.templates[name] = section_list
+        print(f"Template '{name}' created.")
+
+    @classmethod
+    def create_from_template(cls, template_name, plan_name, student):
+        planner = cls(plan_name, student)
+        for section in cls.templates[template_name]:
+            planner.add_subject(section, "Not Completed")
+        return planner
+
+    def add_subject(self, subject, details):
+        self.subjects.append((subject, details))
+
+    def update_subject(self, subject, details):
+        for i in range(len(self.subjects)):
+            if self.subjects[i][0] == subject:
+                self.subjects[i] = (subject, details)
+
+    @decorate
+    def summary(self):
+        return f"Study Plan: {self.plan_name}\nStudent: {self.student}\nSubjects: {len(self.subjects)}"
+
+    # -------- MAGIC METHODS --------
+    def __str__(self):
+        text = f"\nStudy Plan: {self.plan_name}\nStudent: {self.student}\n"
+        for subject, details in self.subjects:
+            text += f"{subject}: {details}\n"
+        return text
+
+    def __len__(self):
+        return len(self.subjects)
+
+    def __getitem__(self, index):
+        return self.subjects[index]
+
+    def __add__(self, other):
+        new = StudyPlanner(self.plan_name + " & " + other.plan_name, self.student)
+        new.subjects = self.subjects + other.subjects
+        return new
+
+    def __eq__(self, other):
+        return self.plan_name == other.plan_name
+
+
+# -------- MAIN PROGRAM --------
+StudyPlanner.add_template(
+    "semester_plan",
+    ["Subject", "Topics", "Practice", "Revision"]
+)
+
+sp1 = StudyPlanner.create_from_template(
+    "semester_plan",
+    "Python OOP Study Plan",
+    "Saniya"
+)
+
+sp1.update_subject("Subject", "Python Programming")
+sp1.update_subject("Topics", "Decorators, Class Methods, Magic Methods")
+sp1.update_subject("Practice", "Solve 10 Python Programs")
+sp1.update_subject("Revision", "Revise Every Sunday")
+
+sp2 = StudyPlanner("Exam Preparation", "Saniya")
+sp2.add_subject("Data Structures", "Arrays and Linked Lists")
+
+print(sp1)
+print("Number of Subjects:", len(sp1))
+print("First Subject:", sp1[0])
+
+combined = sp1 + sp2
+print(combined)
+
+print("Are Both Plans Equal?", sp1 == sp2)
+
+print(sp1.summary())
